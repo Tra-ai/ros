@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ROS Revival</title>
+<style>
+  :root {
+    --bg: #070d18; --card: #0e1729; --field: #0f1b33; --line: #22345a;
+    --text: #eaf1ff; --muted: #8fa3c7; --accent: #1e90ff; --accent2: #19c3e6;
+    --danger: #ff6b6b; --ok: #4ade80;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: radial-gradient(1200px 600px at 50% -10%, #14284d 0%, var(--bg) 60%); color: var(--text);
+    font-family: "Khmer OS", "Noto Sans Khmer", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body { padding: max(20px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom)); display: flex; justify-content: center; }
+  .card { width: 100%; max-width: 420px; margin: auto; background: var(--card); border: 1px solid var(--line); border-radius: 28px; padding: 28px 24px; }
+  .lang { display: flex; justify-content: flex-end; gap: 6px; }
+  .lang button { background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 999px; padding: 4px 12px; font-size: 12px; cursor: pointer; }
+  .lang button.on { color: var(--text); border-color: var(--accent); }
+  .brand { text-align: center; margin: 10px 0 18px; }
+  .mark { width: 64px; height: 64px; margin: 0 auto 10px; border-radius: 18px; display: grid; place-items: center; font-weight: 800; font-size: 22px; letter-spacing: 1px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #04101f; }
+  .brand h1 { margin: 0; font-size: 26px; letter-spacing: 2px; }
+  .brand p { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--field); border: 1px solid var(--line); border-radius: 14px; padding: 4px; margin-bottom: 18px; }
+  .tabs button { border: 0; background: none; color: var(--muted); padding: 10px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; }
+  .tabs button.on { background: var(--line); color: var(--text); }
+  label { display: block; font-size: 12px; font-weight: 700; letter-spacing: .5px; color: var(--muted); margin: 14px 0 6px; text-transform: uppercase; }
+  input { width: 100%; background: var(--field); border: 1px solid var(--line); color: var(--text); border-radius: 14px; padding: 14px 16px; font-size: 16px; outline: none; }
+  input:focus { border-color: var(--accent); }
+  .primary { width: 100%; margin-top: 22px; border: 0; border-radius: 14px; padding: 15px; font-size: 16px; font-weight: 700; color: #04101f; cursor: pointer;
+    background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .primary[disabled] { opacity: .6; cursor: wait; }
+  .ghost { width: 100%; margin-top: 12px; background: none; border: 1px solid var(--line); color: var(--text); border-radius: 14px; padding: 13px; font-size: 15px; cursor: pointer; }
+  .msg { min-height: 20px; margin-top: 14px; font-size: 14px; text-align: center; }
+  .msg.err { color: var(--danger); } .msg.ok { color: var(--ok); }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 6px; }
+  .hidden { display: none; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 18px 0; }
+  .stat { background: var(--field); border: 1px solid var(--line); border-radius: 14px; padding: 12px 6px; text-align: center; }
+  .stat b { display: block; font-size: 20px; } .stat span { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+  .welcome { text-align: center; } .welcome h2 { margin: 6px 0 2px; font-size: 22px; word-break: break-all; } .welcome p { margin: 0; color: var(--muted); font-size: 14px; }
+  ol.board { list-style: none; margin: 8px 0 0; padding: 0; }
+  ol.board li { display: flex; justify-content: space-between; padding: 9px 4px; border-bottom: 1px solid var(--line); font-size: 14px; }
+  ol.board li span:last-child { color: var(--muted); }
+  h3 { margin: 22px 0 0; font-size: 13px; letter-spacing: .5px; color: var(--muted); text-transform: uppercase; }
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="lang"><button id="l-km" type="button">ខ្មែរ</button><button id="l-en" type="button">EN</button></div>
+  <div class="brand">
+    <div class="mark">ROS</div>
+    <h1>ROS REVIVAL</h1>
+    <p data-i="tagline"></p>
+  </div>
+
+  <section id="auth">
+    <div class="tabs">
+      <button id="t-login" type="button" class="on" data-i="signin"></button>
+      <button id="t-reg" type="button" data-i="create"></button>
+    </div>
+    <form id="form" autocomplete="on" novalidate>
+      <div id="f-user" class="hidden">
+        <label for="username" data-i="username"></label>
+        <input id="username" name="username" autocomplete="username" maxlength="20" autocapitalize="none">
+        <div class="hint" data-i="userHint"></div>
+      </div>
+      <label for="email" data-i="email"></label>
+      <input id="email" name="email" type="email" autocomplete="email" maxlength="254" autocapitalize="none">
+      <label for="password" data-i="password"></label>
+      <input id="password" name="password" type="password" autocomplete="current-password" maxlength="72">
+      <div id="f-pw-hint" class="hint hidden" data-i="pwHint"></div>
+      <button id="submit" class="primary" type="submit"></button>
+    </form>
+    <div id="msg" class="msg" role="status" aria-live="polite"></div>
+  </section>
+
+  <section id="home" class="hidden">
+    <div class="welcome"><p data-i="welcome"></p><h2 id="who"></h2></div>
+    <div class="stats">
+      <div class="stat"><b id="s-level">–</b><span data-i="level"></span></div>
+      <div class="stat"><b id="s-xp">–</b><span>XP</span></div>
+      <div class="stat"><b id="s-rank">–</b><span data-i="rank"></span></div>
+    </div>
+    <h3 data-i="top"></h3>
+    <ol id="board" class="board"></ol>
+    <button id="logout" class="ghost" type="button" data-i="signout"></button>
+  </section>
+</main>
+
+<script>
+(function () {
+  var T = {
+    km: {
+      tagline: "ចូលគណនីដើម្បីបន្ត", signin: "ចូលគណនី", create: "បង្កើតគណនី",
+      username: "ឈ្មោះអ្នកលេង", userHint: "៣–២០ តួ៖ អក្សរ លេខ ឬ _", email: "អ៊ីមែល", password: "ពាក្យសម្ងាត់",
+      pwHint: "យ៉ាងតិច ៨ តួអក្សរ", welcome: "សូមស្វាគមន៍", level: "កម្រិត", rank: "Rank", top: "អ្នកលេងកំពូល", signout: "ចាកចេញ",
+      busy: "សូមរង់ចាំ…", created: "បង្កើតគណនីជោគជ័យ!", network: "មិនអាចភ្ជាប់ទៅ server បានទេ",
+      e400: "ព័ត៌មានមិនត្រឹមត្រូវ", e401: "អ៊ីមែល ឬពាក្យសម្ងាត់ខុស", e409: "អ៊ីមែល ឬឈ្មោះនេះមានគេប្រើរួចហើយ", e429: "ព្យាយាមច្រើនពេក សូមរង់ចាំបន្តិច", e500: "server មានបញ្ហា សូមព្យាយាមម្តងទៀត",
+      needAll: "សូមបំពេញព័ត៌មានឱ្យគ្រប់"
+    },
+    en: {
+      tagline: "Sign in to continue", signin: "Sign in", create: "Create account",
+      username: "Username", userHint: "3–20 characters: letters, numbers or _", email: "Email", password: "Password",
+      pwHint: "At least 8 characters", welcome: "Welcome", level: "Level", rank: "Rank", top: "Top players", signout: "Sign out",
+      busy: "Please wait…", created: "Account created!", network: "Could not reach the server",
+      e400: "Please check your details", e401: "Wrong email or password", e409: "That email or username is already taken", e429: "Too many attempts, please wait a moment", e500: "Server error, please try again",
+      needAll: "Please fill in every field"
+    }
+  };
+  var $ = function (id) { return document.getElementById(id); };
+  var lang = "km", mode = "login", TOKEN_KEY = "ros_token";
+  try { lang = localStorage.getItem("ros_lang") || "km"; } catch (e) {}
+
+  function t(k) { return (T[lang] && T[lang][k]) || k; }
+  function applyLang() {
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-i]").forEach(function (el) { el.textContent = t(el.getAttribute("data-i")); });
+    $("l-km").className = lang === "km" ? "on" : ""; $("l-en").className = lang === "en" ? "on" : "";
+    $("submit").textContent = t(mode === "login" ? "signin" : "create");
+    $("tagline") && ($("tagline").textContent = t("tagline"));
+  }
+  function setLang(l) { lang = l; try { localStorage.setItem("ros_lang", l); } catch (e) {} applyLang(); }
+
+  function setMode(m) {
+    mode = m;
+    $("t-login").className = m === "login" ? "on" : ""; $("t-reg").className = m === "reg" ? "on" : "";
+    $("f-user").className = m === "reg" ? "" : "hidden"; $("f-pw-hint").className = m === "reg" ? "hint" : "hint hidden";
+    $("password").setAttribute("autocomplete", m === "reg" ? "new-password" : "current-password");
+    $("submit").textContent = t(m === "login" ? "signin" : "create");
+    say("");
+  }
+  function say(text, kind) { var m = $("msg"); m.textContent = text; m.className = "msg" + (kind ? " " + kind : ""); }
+
+  function api(path, opts) {
+    return fetch(path, opts).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (data) { return { ok: r.ok, status: r.status, data: data }; });
+    });
+  }
+  function errText(status) {
+    return t(status === 401 ? "e401" : status === 409 ? "e409" : status === 429 ? "e429" : status >= 500 ? "e500" : "e400");
+  }
+
+  function saveToken(tok) { try { localStorage.setItem(TOKEN_KEY, tok); } catch (e) {} }
+  function getToken() { try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; } }
+  function clearToken() { try { localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+
+  function showHome(player) {
+    $("auth").className = "hidden"; $("home").className = "";
+    $("who").textContent = player.username;
+    $("s-level").textContent = player.level; $("s-xp").textContent = player.xp; $("s-rank").textContent = player.rank_points;
+    loadBoard();
+  }
+  function showAuth() { $("home").className = "hidden"; $("auth").className = ""; }
+
+  function loadBoard() {
+    api("/api/leaderboard").then(function (r) {
+      var ol = $("board"); ol.textContent = "";
+      ((r.data && r.data.leaderboard) || []).slice(0, 10).forEach(function (p, i) {
+        var li = document.createElement("li"), a = document.createElement("span"), b = document.createElement("span");
+        a.textContent = (i + 1) + ". " + p.username; b.textContent = p.rank_points;
+        li.appendChild(a); li.appendChild(b); ol.appendChild(li);
+      });
+    }).catch(function () {});
+  }
+
+  function restore() {
+    var tok = getToken(); if (!tok) return;
+    api("/api/players/me", { headers: { Authorization: "Bearer " + tok } }).then(function (r) {
+      if (r.ok && r.data.player) showHome(r.data.player); else if (r.status === 401) clearToken();
+    }).catch(function () {});
+  }
+
+  $("form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var email = $("email").value.trim(), password = $("password").value, username = $("username").value.trim();
+    if (!email || !password || (mode === "reg" && !username)) return say(t("needAll"), "err");
+    var body = mode === "reg" ? { username: username, email: email, password: password } : { email: email, password: password };
+    $("submit").disabled = true; say(t("busy"));
+    api("/api/auth/" + (mode === "reg" ? "register" : "login"), {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
+    }).then(function (r) {
+      if (!r.ok) return say(errText(r.status), "err");
+      saveToken(r.data.token); say(mode === "reg" ? t("created") : "", mode === "reg" ? "ok" : "");
+      $("password").value = ""; showHome(r.data.player);
+    }).catch(function () { say(t("network"), "err"); }).then(function () { $("submit").disabled = false; });
+  });
+
+  $("t-login").addEventListener("click", function () { setMode("login"); });
+  $("t-reg").addEventListener("click", function () { setMode("reg"); });
+  $("logout").addEventListener("click", function () { clearToken(); showAuth(); setMode("login"); });
+  $("l-km").addEventListener("click", function () { setLang("km"); });
+  $("l-en").addEventListener("click", function () { setLang("en"); });
+
+  applyLang(); setMode("login"); restore();
+})();
+</script>
+</body>
+</html>

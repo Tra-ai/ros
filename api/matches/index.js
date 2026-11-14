@@ -2,6 +2,7 @@ import { sql } from "../../lib/db.js";
 import { requirePlayer } from "../../lib/auth.js";
 import { route, readBody, HttpError } from "../../lib/http.js";
 import { rateLimit } from "../../lib/rateLimit.js";
+import { expireStaleMatches } from "../../lib/matches.js";
 
 const MODES = ["solo", "duo", "squad"];
 const SIZES = [20, 50, 100];
@@ -9,6 +10,7 @@ const MAX_WAITING_PER_HOST = 3;
 
 export default route(["GET", "POST"], async (req, res) => {
   if (req.method === "GET") {
+    await expireStaleMatches();
     const rows = await sql`
       SELECT m.id, m.mode, m.map_name, m.status, m.max_players, m.created_at,
              (SELECT COUNT(*) FROM match_players mp WHERE mp.match_id = m.id)::int AS player_count
@@ -21,6 +23,7 @@ export default route(["GET", "POST"], async (req, res) => {
 
   const auth = await requirePlayer(req);
   await rateLimit(`match:create:${auth.playerId}`, 10, 600);
+  await expireStaleMatches();
 
   const { mode = "solo", mapName = "island", maxPlayers = 50 } = readBody(req);
   if (!MODES.includes(mode)) throw new HttpError(400, "Invalid mode");

@@ -15,6 +15,7 @@
 | `GET /api/matches/:id` | ព័ត៌មាន match + បញ្ជីអ្នកលេង | — |
 | `POST /api/matches/:id/join` | ចូល match | Bearer |
 | `POST /api/matches/:id/leave` | ចាកចេញពី match | Bearer |
+| `POST /api/matches/:id/start` | Host ចាប់ផ្តើម match (waiting → starting) | Bearer |
 
 ## អ្វីដែលបានកែ (v1.1)
 - Token ខុស/ផុតកំណត់ ឥឡូវបាន `401` (ពីមុនបាន `500`)។
@@ -43,3 +44,7 @@ Create match: `{"mode":"squad","mapName":"island","maxPlayers":50}`
 - Vercel Functions មិនមែនជា persistent WebSocket game server ទេ។ Multiplayer real-time ត្រូវការ game server ដាច់ដោយឡែក។
 - `maxPlayers` គឺជា config ប៉ុណ្ណោះ មិនធានាថា server ទ្រទ្រង់បានទេ។
 - កុំដាក់ `.env` ឬ Secret ក្នុង GitHub។
+
+## v1.2
+- Match ដែលរង់ចាំលើស 30 នាទី ត្រូវបាន cancel ស្វ័យប្រវត្តិ (ដើម្បីកុំឱ្យ host ជាប់កំណត់ 3 match ជារៀងរហូត)។
+- បន្ថែម `POST /api/matches/:id/start` (host ប៉ុណ្ណោះ)។
